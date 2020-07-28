@@ -1,6 +1,5 @@
 import json
 
-
 class Logger:
     def __init__(self, _log):
         self.log = _log
