@@ -15,9 +15,9 @@ class ProcessData:
 class GrabManager:
     procdata = []
     processes = []
-
-    def __init__(self):
-        self.log = LidarLog()
+    logdata = None
+    def __init__(self, manager):
+        self.log = LidarLog(manager)
         self.grabber = Grabber(self.log, self, 550)
         self.logger = Logger(self.log)
         self.ProcessList()
@@ -52,5 +52,5 @@ class GrabManager:
         return len(self.processes)
 
 if __name__ == '__main__':
-    gm = GrabManager()
+    gm = GrabManager(Manager())
     gm.StartManager()

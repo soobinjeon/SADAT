@@ -3,12 +3,10 @@ from multiprocessing import Manager
 
 class LidarLog:
     motorpwm = 0
-    manager = Manager()
-    lidarDataQueue = manager.Queue()
 
-
-    def __init__(self):
+    def __init__(self, manager):
         print("Log Init")
+        self.lidarDataQueue = manager.Queue()
 
     def initLog(self, motorpwm):
         self.motorpwm = motorpwm
