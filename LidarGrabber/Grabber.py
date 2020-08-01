@@ -13,12 +13,13 @@ def get_now_timestamp():
 class Grabber:
     lidar = None
 
-    def __init__(self, _log, manager, motorpwm):
+    def __init__(self, _log, motorpwm):
         self.log = _log
         self.log.initLog(motorpwm)
-        self.manager = manager
+        self.pwm = motorpwm
+
+    def connect(self):
         try:
-            self.pwm = motorpwm
             self.lidar = PyRPlidar()
             self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
             # Linux   : "/dev/ttyUSB0"
@@ -44,6 +45,7 @@ class Grabber:
     def startGrab(self):
         self.log.initLog(self.pwm)
         if self.log is not None:
+            self.connect()
             self.startLidar()
             self.disconnect()
 
@@ -77,8 +79,6 @@ class Grabber:
         finally:
             self.lidar.stop()
             self.lidar.set_motor_pwm(0)
-            for p in range(self.manager.getNumofProc()):
-                self.log.enQueueData('interrupt', get_now_timestamp())
 
     def disconnect(self):
         self.lidar.disconnect()

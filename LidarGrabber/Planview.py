@@ -1,12 +1,18 @@
 from tkinter import *
 import time
 
+from menubartest import App
+
+
 class Planview:
     def __init__(self):
-        self.cwidth = 1000
-        self.cheight = 1000
+        self.cwidth = 700
+        self.cheight = 700
 
         self.window = Tk()
+
+        self.drawMenu()
+
         self.canvas = Canvas(self.window, width=self.cwidth, height=self.cheight)
         self.canvas.pack()
 
@@ -18,6 +24,15 @@ class Planview:
 
         self.circleSizeX = 10
         self.circleSizeY = 10
+
+
+    def donothing(self):
+        print("do nothing")
+
+    def drawMenu(self):
+        print("Draw Menu")
+        self.window.title("Lidar Simulator")
+        app = App(self.window)
 
     def drawCrossline(self, lq):
         coord = [0, (self.cheight / 2), self.cwidth, (self.cheight / 2)]
@@ -50,39 +65,9 @@ class Planview:
 
     def do_one_frame(self, lq):
         self.canvas.delete("all")
-        self.drawCrossline(lq)
+        #self.drawCrossline(lq)
         self.canvas.after(200, self.do_one_frame, lq)
 
     def paintPlanview(self):
-        rd = Reader()
-
-        manager = Manager()
-        lidarDataQueue = manager.Queue()
-
-        processes = []
-        processes.append(Process(name="GUI", target=rd.startRead, args=(1, lidarDataQueue)))
-
-        for p in processes:
-            p.start()
-            print("Start", p, p.is_alive())
-
-        #self.drawCrossline()
-        self.do_one_frame(lidarDataQueue)
-        #
-        # for i in range(100):
-        #     self.canvas.move(oval, 3, 0)
-        #     self.window.update()
-        #     time.sleep(0.05)
-        #
-        # for i in range(100):
-        #     self.canvas.move(oval, -3, 0)
-        #     self.window.update()
-        #     time.sleep(0.001)
-
-
-
+        #self.do_one_frame(None)
         self.window.mainloop()
-
-        for p in self.processes:
-            p.join()
-        print("end Process")

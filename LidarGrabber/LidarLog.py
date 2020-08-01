@@ -1,6 +1,3 @@
-from multiprocessing import Manager
-
-
 class LidarLog:
     motorpwm = 0
 
