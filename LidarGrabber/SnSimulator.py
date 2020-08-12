@@ -1,4 +1,6 @@
+import sys
 from multiprocessing import Manager, Process
+from PyQt5.QtWidgets import QApplication
 from LidarLog import LidarLog
 from ModeLog import ModeLog
 from ModeSimulation import ModeSimulation
@@ -6,7 +8,7 @@ from SimLog import SimLog
 from simMode import Mode
 import time
 
-class GrabManager:
+class SnSimulator:
     processes = []
 
     def __init__(self, manager):
@@ -16,8 +18,8 @@ class GrabManager:
         self.defineProcess()
 
     def StartManager(self):
-        self.CommandMode()
-
+        #self.CommandMode()
+        print("exit")
         for p in self.processes:
             p.join()
 
@@ -29,7 +31,6 @@ class GrabManager:
             # set Processes
             for pr in proc.getProcesses():
                 self.addProcess(pr)
-
             for p in self.processes:
                 p.start()
                 print("Start", p, p.is_alive())
@@ -60,7 +61,8 @@ class GrabManager:
                 self.setMode(Mode.MODE_LOG)
             else:
                 break
+            time.sleep(2)
 
 if __name__ == '__main__':
-    gm = GrabManager(Manager())
+    gm = SnSimulator(Manager())
     gm.StartManager()

@@ -1,30 +1,32 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, qApp
+from PyQt5.QtGui import QIcon
 
-# Subclass QMainWindow to customise your application's main window
-class MainWindow(QMainWindow):
+from gui.menuExit import menuExit
 
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
 
-        self.setWindowTitle("My Awesome App")
+class MyApp(QMainWindow):
 
-        label = QLabel("This is a PyQt5 window!")
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-        # The `Qt` namespace has a lot of attributes to customise
-        # widgets. See: http://doc.qt.io/qt-5/qt.html
-        label.setAlignment(Qt.AlignCenter)
+    def initUI(self):
+        self.statusBar()
+        self.initMenubar()
 
-        # Set the central widget of the Window. Widget will expand
-        # to take up all the space in the window by default.
-        self.setCentralWidget(label)
+        self.setWindowTitle('Lidar Cluster')
+        self.setGeometry(300, 300, 1000, 1000)
+        self.show()
+
+    def initMenubar(self):
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+        filemenu = menubar.addMenu('&File')
+
+        mexit = menuExit(filemenu)
 
 if __name__ == '__main__':
-    print("Start")
     app = QApplication(sys.argv)
-
-    window = MainWindow()
-    window.show()
-
-    app.exec_()
+    ex = MyApp()
+    sys.exit(app.exec_())
