@@ -1,22 +1,24 @@
 import math
 import json
 import time
-from multiprocessing import Manager, Process
+from PyQt5.QtCore import pyqtSignal
 
-#for rpLidar
-from SimLog import SimLog
+from Dispatcher import Dispatcher
 
 
-class LogSimDispatcher():
+class LogSimDispatcher(Dispatcher):
+
     def __init__(self, log, opensrc=""):
+        super().__init__()
         self.Log = log
         self.opensrc = opensrc
         self._rawdata = None
         print("LogSimDispatcher Init")
+        print(self.guiApp)
 
     def dispatch(self):
         print("Dispatch")
-        time.sleep(4)
+        time.sleep(1)
         self.Log.initLog()
         self._rawdata = self.loadData()
         self.logDispatch(self._rawdata)
@@ -25,7 +27,7 @@ class LogSimDispatcher():
     def loadData(self):
         print("lodata method called")
         if self.opensrc == "":
-            self.opensrc = "../Data/data_2.json"
+            self.opensrc = "../../Data/data_2.json"
 
         with open(self.opensrc, "r") as st_json:
             print("Load log Data..")
@@ -69,11 +71,14 @@ class LogSimDispatcher():
 
                 #insert XY into shared log
                 self.Log.enQueueData(tempXY)
-                print(self.Log.getQueueData().qsize())
+                #print(self.Log.getQueueData().qsize(), tempXY[0][0], tempXY[1][0])
+                #self.signal.emit(tempXY)
                 #print(self.Log.getQueueData())
                 #print(innercnt)
             else:
                 logcnt += 1
+
+        self.Log.enQueueData(self.getEOFMessage())
 
     def getCoordinatebyLidar(self, distance, angle):
         x = distance * math.cos(math.radians(90 - angle))

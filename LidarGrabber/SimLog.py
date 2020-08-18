@@ -3,8 +3,9 @@ import time
 class SimLog:
 
     def __init__(self, manager):
-        print("Log Init")
+        print("Sim Log Init")
         self.simLogData = manager.Queue()
+        self.playData = manager.Queue()
 
     def initLog(self):
 
@@ -22,4 +23,10 @@ class SimLog:
 
     def getQueueData(self):
         return self.simLogData
+
+    def enQueuePlayData(self, data):
+        self.playData.put(data)
+
+    def getQueuePlayData(self):
+        return self.playData
 

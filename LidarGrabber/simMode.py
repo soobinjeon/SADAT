@@ -9,13 +9,20 @@ class Mode(metaclass=ABCMeta):
     def __init__(self, log):
         self.log = log
         self.procList = []
+        self.lSimDispatcher = None
 
     def addProcess(self, name, func, args):
         self.procList.append(SimProcess(name=name, target=func, args=args))
 
     def getProcesses(self):
-        self.makeProcess()
+        if len(self.procList) == 0:
+            self.makeProcess()
         return self.procList
+
+    def setVelocity(self, vel):
+        if self.lSimDispatcher is not None:
+            self.lSimDispatcher.setVelocity(vel)
+
 
     @abstractmethod
     def makeProcess(self):

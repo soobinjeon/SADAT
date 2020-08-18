@@ -8,25 +8,42 @@ from SimLog import SimLog
 from simMode import Mode
 import time
 
+from taskLoopPlay import taskLoopPlay
+from taskPlanview import taskPlanview
+
+
 class SnSimulator:
     processes = []
 
-    def __init__(self, manager):
+    def __init__(self, manager, gapp=None):
+        self.guiApp = gapp
+        self.manager = manager
         self.rawlog = LidarLog(manager)
         self.simlog = SimLog(manager)
         self.procs = {}
+        self.pvthread = None
+        self.lpthread = None
+
         self.defineProcess()
 
     def StartManager(self):
-        #self.CommandMode()
+        # self.CommandMode()
         print("exit")
         for p in self.processes:
             p.join()
 
         print("end Process")
 
-    def setMode(self, mode):
+    def setAction(self, mode):
+
+        if mode is Mode.MODE_SIM:
+            self.lpthread.setSimMode()
+        elif mode is Mode.MODE_LOG:
+            self.lpthread.setLoggingMode()
+
+        self.cleanProcess()
         proc = self.procs[mode]
+
         if proc is not None:
             # set Processes
             for pr in proc.getProcesses():
@@ -38,9 +55,31 @@ class SnSimulator:
             # for data in iter(self.simlog.getQueueData().get, 'interrupt'):
             #     time.sleep(0.01)
 
+    def cleanProcess(self):
+        if len(self.processes) != 0:
+            #clean process start
+            print("Wait process finishing for cleaning process list")
+            for p in self.processes:
+                p.join()
+
+            self.processes.clear()
+            print("Clean, process length :", len(self.processes))
+
     def defineProcess(self):
+        # init planview thread
+        self.pvthread = taskPlanview(self.guiApp, self.simlog)
+        self.pvthread.signal.connect(self.guiApp.changePosition)
+        self.pvthread.start()
+
+        self.lpthread = taskLoopPlay(self.guiApp, self.simlog, self.manager)
+        self.lpthread.signal.connect(self.guiApp.playbackstatus)
+        self.lpthread.setVelocity(60)
+        self.lpthread.start()
+
+        # init log process
         self.procs[Mode.MODE_LOG] = ModeLog(self.rawlog)
         self.procs[Mode.MODE_SIM] = ModeSimulation(self.simlog)
+        print(self.procs)
 
     def addProcess(self, procdata):
         if procdata.args is None:
@@ -51,17 +90,15 @@ class SnSimulator:
     def getNumofProc(self):
         return len(self.processes)
 
-    def CommandMode(self):
-        while True:
-            comm = int(input("Input Command(1:sim 2:log 3:exit) : "))
+    def setVelocity(self, vel):
+        self.lpthread.setVelocity(vel)
 
-            if comm == 1:
-                self.setMode(Mode.MODE_SIM)
-            elif comm == 2:
-                self.setMode(Mode.MODE_LOG)
-            else:
-                break
-            time.sleep(2)
+    def playMode(self):
+        self.lpthread.setPlayMode()
+
+    def PauseMode(self):
+        self.lpthread.setPause()
+
 
 if __name__ == '__main__':
     gm = SnSimulator(Manager())

@@ -2,7 +2,7 @@ class LidarLog:
     motorpwm = 0
 
     def __init__(self, manager):
-        print("Log Init")
+        print("Lidar Log Init")
         self.lidarDataQueue = manager.Queue()
 
     def initLog(self, motorpwm):
