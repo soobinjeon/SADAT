@@ -5,6 +5,7 @@ from LidarLog import LidarLog
 from ModeLog import ModeLog
 from ModeSimulation import ModeSimulation
 from SimLog import SimLog
+from gui.guiMain import GUI_CONTROLLER
 from simMode import Mode
 import time
 
@@ -23,6 +24,8 @@ class SnSimulator:
         self.procs = {}
         self.pvthread = None
         self.lpthread = None
+
+        self.Velocity = 0
 
         self.defineProcess()
 
@@ -91,13 +94,24 @@ class SnSimulator:
         return len(self.processes)
 
     def setVelocity(self, vel):
-        self.lpthread.setVelocity(vel)
+        v = int(vel)
+        self.lpthread.setVelocity(v)
+        self.Velocity = v
+
+    def getVelocity(self):
+        return self.Velocity
 
     def playMode(self):
         self.lpthread.setPlayMode()
+        self.guiApp.gcontrol.setPlayMode(GUI_CONTROLLER.PLAYMODE)
 
     def PauseMode(self):
-        self.lpthread.setPause()
+        self.lpthread.setPause(False)
+        self.guiApp.gcontrol.setPlayMode(GUI_CONTROLLER.RESUMEMODE)
+
+    def ResumeMode(self):
+        self.lpthread.setPause(True)
+        self.guiApp.gcontrol.setPlayMode(GUI_CONTROLLER.PLAYMODE)
 
 
 if __name__ == '__main__':

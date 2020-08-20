@@ -15,5 +15,6 @@ class menuSim(QAction):
         self.setStatusTip('Exit application')
 
     def trig(self):
-        self.parent.simulator.setAction(Mode.MODE_SIM)
+        self.parent.playMode()
+        #self.parent.simulator.setAction(Mode.MODE_SIM)
         print("PlaySim")

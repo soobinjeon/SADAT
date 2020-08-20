@@ -11,9 +11,15 @@ class playbackInfo():
 
 class taskLoopPlay(QThread):
     signal = pyqtSignal([playbackInfo])
+    PLAYMODE_LOGPLAY = 0
+    PLAYMODE_LOAD = 1
+    PLAYMODE_PLAY = 2
+    PLAYMODE_PAUSE = 3
+    PLAYMODE_SETVALUE = 4
 
     def __init__(self, parent=None, simlog=None, manager=None):
         super(taskLoopPlay, self).__init__(parent=parent)
+        self.guiApp = parent
         self.task = manager.Queue()
         self.simlog = simlog
         self.originData = []
@@ -37,22 +43,29 @@ class taskLoopPlay(QThread):
         self.vel = vel
 
     def setSimMode(self):
-        self.task.put(1)
+        self.task.put(self.PLAYMODE_LOAD)
 
 
     def setLoggingMode(self):
-        self.task.put(0)
+        self.task.put(self.PLAYMODE_LOGPLAY)
 
     def setPlayMode(self):
         self.initPlay()
-        self.task.put(2)
+        self.task.put(self.PLAYMODE_PLAY)
 
-    def setPause(self):
-        if not self.isPause:
+    def setPause(self, isResume):
+        if not isResume:
             self.isPause = True
         else:
             self.isPause = False
-            self.task.put(2)
+            self.task.put(self.PLAYMODE_PLAY)
+
+    def setPlayPoint(self, value):
+        if not self.isPause:
+            self.isPause = True
+
+        self.playidx = value
+        self.task.put(self.PLAYMODE_SETVALUE)
 
     def stop(self):
         self.task.put('stop')
@@ -61,27 +74,27 @@ class taskLoopPlay(QThread):
     def run(self):
         for td in iter(self.task.get, 'stop'):
             #pass
-            if td == 0:
+            if td == self.PLAYMODE_LOGPLAY:
                 lq = self.simlog.getQueueData()
                 print("store origin data")
                 for data in iter(lq.get, 'interrupt'):
                     self.simlog.enQueuePlayData(data)
 
             #Sim Mode
-            if td == 1:
+            if td == self.PLAYMODE_LOAD:
                 lq = self.simlog.getQueueData()
+                self.guiApp.setStatus("Loading origin data")
                 print("store origin data")
                 for data in iter(lq.get, 'interrupt'):
                     self.originData.append(data)
                     #time.sleep(1 / self.vel)
+                self.pbInfo.mode = self.PLAYMODE_LOAD
                 self.pbInfo.maxLength = len(self.originData)
                 self.signal.emit(self.pbInfo)
-                print("Store Completed")
+                self.guiApp.setStatus("Log data Load Completed")
 
-            elif td == 2:
-                print("play data")
-                self.pbInfo.mode = 1
-                self.playidx
+            elif td == self.PLAYMODE_PLAY:
+                self.pbInfo.mode = self.PLAYMODE_PLAY
                 while self.playidx < self.pbInfo.maxLength:
                     if self.isPause:
                         break
@@ -91,6 +104,12 @@ class taskLoopPlay(QThread):
                     self.signal.emit(self.pbInfo)
                     time.sleep(1 / self.vel)
                     self.playidx += 1
+
+            elif td == self.PLAYMODE_SETVALUE:
+                self.pbInfo.mode = self.PLAYMODE_SETVALUE
+                self.pbInfo.currentIdx = self.playidx
+                self.simlog.enQueuePlayData(self.originData[self.playidx])
+                self.signal.emit(self.pbInfo)
                 # for idx, data in enumerate(self.originData):
                 #     self.pbInfo.currentIdx = idx
                 #     data.append(self.pbInfo)
