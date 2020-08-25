@@ -8,6 +8,7 @@ class playbackInfo():
         self.mode = 0
         self.maxLength = 0
         self.currentIdx = 0
+        self.setfps = 0
 
 class taskLoopPlay(QThread):
     signal = pyqtSignal([playbackInfo])
@@ -85,13 +86,32 @@ class taskLoopPlay(QThread):
                 lq = self.simlog.getQueueData()
                 self.guiApp.setStatus("Loading origin data")
                 print("store origin data")
+                tcnt = 0
+                prevtime = 0
+                fps = 0
+                fpscnt = 0
                 for data in iter(lq.get, 'interrupt'):
                     self.originData.append(data)
+                    tcnt += 1
+                    if prevtime < int(data[2]):
+                        print("frame per sec :",tcnt)
+                        fps += tcnt
+                        fpscnt += 1
+                        tcnt = 0
+
+                    prevtime = int(data[2])
+                    #print(data[2], data[3])
                     #time.sleep(1 / self.vel)
+
+                #calculate frame per sec
+                fps = 0 if fpscnt == 0 else int(fps / fpscnt)
+
                 self.pbInfo.mode = self.PLAYMODE_LOAD
                 self.pbInfo.maxLength = len(self.originData)
+                self.pbInfo.setfps = fps
                 self.signal.emit(self.pbInfo)
                 self.guiApp.setStatus("Log data Load Completed")
+                self.simlog.enQueuePlayData(self.originData[self.playidx])
 
             elif td == self.PLAYMODE_PLAY:
                 self.pbInfo.mode = self.PLAYMODE_PLAY

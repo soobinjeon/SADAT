@@ -50,6 +50,8 @@ class LogSimDispatcher(Dispatcher):
                 tempXY = []
                 innerSflag = False
                 innercnt = 0
+                timestamp = 0
+                sflag = False
                 while not innerSflag and logcnt < datalen:
                     data = rawdata['rawdata'][logcnt]
                     if innercnt != 0:
@@ -58,9 +60,11 @@ class LogSimDispatcher(Dispatcher):
                     distance = data['distance']
                     angle = data['angle']
                     timestamp = data['timestamp']
+                    sflag = data['start_flag']
                     tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
                     tempX.append(tx)
                     tempY.append(ty)
+
 
                     innercnt += 1
                     logcnt += 1
@@ -68,6 +72,8 @@ class LogSimDispatcher(Dispatcher):
                 #insert XY coord
                 tempXY.append(tempX)
                 tempXY.append(tempY)
+                tempXY.append(timestamp)
+                tempXY.append(sflag)
 
                 #insert XY into shared log
                 self.Log.enQueueData(tempXY)

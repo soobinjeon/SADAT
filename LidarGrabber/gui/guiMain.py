@@ -29,6 +29,7 @@ class GUI_CONTROLLER:
         self.toolbar = {}
         self.menubar = {}
         self.slider = None
+        self.cmode = self.STOPMODE
 
     def addToolbar(self, item, name):
         self.toolbar[name] = item
@@ -42,7 +43,11 @@ class GUI_CONTROLLER:
     def getSlider(self):
         return self.slider
 
+    def getCurrentMode(self):
+        return self.cmode
+
     def setPlayMode(self, mode):
+        self.cmode = mode
         if mode is self.STOPMODE:
             self.toolbar['Play'].setVisible(True)
             self.toolbar['Pause'].setVisible(False)
@@ -56,22 +61,30 @@ class GUI_CONTROLLER:
             self.toolbar['Pause'].setVisible(False)
             self.toolbar['Resume'].setVisible(True)
 
+class MyAppEventManager():
+    def __init__(self):
+        pass
+
 class MyApp(QMainWindow):
 
     def __init__(self):
         super().__init__()
 
+        self.panviewSize = 10
+        self.velocity = 15
         #init gui group
         self.guiGroup = {}
 
         self.gcontrol = GUI_CONTROLLER()
 
+        self.prevx = []
+        self.prevy = []
         self.xpos = []
         self.ypos = []
 
         # init Simulator Manager
         self.simulator = SnSimulator.SnSimulator(Manager(), self)
-        self.simulator.setVelocity(60)
+        self.simulator.setVelocity(self.velocity)
 
         self.initUI()
 
@@ -87,6 +100,16 @@ class MyApp(QMainWindow):
         #self.timer = QTimer(self)
         #self.timer.timeout.connect(self.changePosition)
         #self.timer.start(int(1000 / self.vel))
+        self.setStyleSheet("""QMenuBar {
+                 background-color: Gray;
+                }
+
+             QMenuBar::item {
+                 background: gray;
+             }""")
+        p = self.palette()
+        p.setColor(self.backgroundRole(), Qt.black)
+        self.setPalette(p)
         self.modeChanger(GUI_GROUP.ALL, False)
         self.setWindowTitle('Lidar Cluster')
         #self.setStyleSheet("background-color: dimgray;")
@@ -113,12 +136,13 @@ class MyApp(QMainWindow):
         toolplay = toolbarPlay('Play', self, self.simulator.playMode, 'Ctrl+P')
         toolpause = toolbarPlay('Pause', self, self.simulator.PauseMode)
         toolresume = toolbarPlay('Resume', self, self.simulator.ResumeMode)
-        toolvel = toolbarEditor('10', self, self.simulator.setVelocity)
-        toolvel.setText(str(self.simulator.getVelocity()))
+        self.toolvel = toolbarEditor('10', self, self.simulator.setVelocity)
+        self.toolvel.setText(str(self.simulator.getVelocity()))
+
         self.toolbar.addAction(toolplay)
         self.toolbar.addAction(toolpause)
         self.toolbar.addAction(toolresume)
-        self.toolbar.addWidget(toolvel)
+        self.toolbar.addWidget(self.toolvel)
 
         #slider
         slider = toolbarSlider(Qt.Horizontal, self)
@@ -145,12 +169,47 @@ class MyApp(QMainWindow):
         self.draw_point(qp)
         qp.end()
 
+    #event
+    def wheelEvent(self, e):
+        #print('wheel')
+        #print('(%d %d)' % (e.angleDelta().x(), e.angleDelta().y()))
+
+        wvalue = e.angleDelta().y()
+        div = 0.025
+        max = 0.6
+        min = 0.05
+        dv = wvalue * div
+        if dv != 0:
+            sign = abs(dv) / dv
+        else:
+            sign = 0
+
+        if abs(dv) > max:
+            dv = max * sign
+        elif abs(dv) < min:
+            dv = min * sign
+
+        temp = self.panviewSize + dv
+
+        if 0.1 < temp <= 126:
+            self.panviewSize += dv
+
+        if self.gcontrol.getCurrentMode() is not GUI_CONTROLLER.PLAYMODE:
+            self.updatePosition()
+
     def draw_point(self, qp):
         #print('draw paint')
-        qp.setPen(QPen(Qt.black, 2))
+        qp.setPen(QPen(Qt.white, 1))
+
 
         for idx,item in enumerate(self.xpos):
-            qp.drawPoint(int(self.xpos[idx]), int(self.ypos[idx]))
+            #qp.drawPoint(int(self.xpos[idx]), int(self.ypos[idx]))
+            xp = int(self.xpos[idx])
+            yp = int(self.ypos[idx])
+            xw = xp + 1
+            yw = yp + 1
+            #print(self.panviewSize, xp, yp)
+            qp.drawEllipse(xp, yp, 1, 1)
 
     def modeChanger(self, mode, isTrue):
         for modedata in self.guiGroup:
@@ -168,22 +227,31 @@ class MyApp(QMainWindow):
         self.simulator.PauseMode()
 
     def changePosition(self, data):
-        x = data[0]
-        y = data[1]
+        self.prevx = data[0]
+        self.prevy = data[1]
+
+        self.updatePosition()
+
+    def updatePosition(self):
+        # print(len(x))
         self.xpos.clear()
         self.ypos.clear()
+        for idx, item in enumerate(self.prevx):
+            self.xpos.append((self.prevx[idx] / self.panviewSize) + (self.width() / 2))
+            self.ypos.append((self.prevy[idx] / self.panviewSize) + (self.height() / 2))
 
-        #print(len(x))
-        for idx, item in enumerate(x):
-            self.xpos.append((x[idx] / 15) + (self.width() / 2))
-            self.ypos.append((y[idx] / 15) + (self.height() / 2))
-
-        #print(self.target_x_pos, self.target_y_pos)
+        # print(self.target_x_pos, self.target_y_pos)
         self.update()
+
+
 
     def playbackstatus(self, pbinfo):
         if pbinfo.mode == self.simulator.lpthread.PLAYMODE_LOAD:
             self.gcontrol.getSlider().setSliderRange(pbinfo.maxLength)
+            self.velocity = pbinfo.setfps
+            self.simulator.setVelocity(self.velocity)
+            self.toolvel.setText(str(self.simulator.getVelocity()))
+
             self.modeChanger(GUI_GROUP.LOGPLAY_MODE, True)
         elif pbinfo.mode == self.simulator.lpthread.PLAYMODE_PLAY:
             self.gcontrol.getSlider().setValue(pbinfo.currentIdx)
