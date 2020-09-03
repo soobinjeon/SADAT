@@ -2,6 +2,9 @@ from pyrplidar import PyRPlidar
 import time
 import datetime as pydatetime
 
+from LidarLog import LidarLog
+from multiprocessing import Manager
+
 
 def get_now():
     return pydatetime.datetime.now()
@@ -21,22 +24,30 @@ class Grabber:
     def connect(self):
         try:
             self.lidar = PyRPlidar()
+            #Linux
             self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
+            #Windows
+            #self.lidar.connect(port="COM4", baudrate=256000, timeout=3)
             # Linux   : "/dev/ttyUSB0"
             # MacOS   : "/dev/cu.SLAB_USBtoUART"
             # Windows : "COM5"
-            # print("info")
-            # print(self.lidar.get_info())
+            print("info")
+            print(self.lidar.get_info())
             # print("health")
             # print(self.lidar.get_health())
-            # print("samplerate")
-            # print(self.lidar.get_samplerate())
-            # print("mode")
-            # print(self.lidar.get_scan_mode_count())
+            print("samplerate")
+            print(self.lidar.get_samplerate())
+            print("mode")
+            print(self.lidar.get_scan_mode_count())
             # print("typical")
             # print(self.lidar.get_scan_mode_typical())
             # print("scan mode")
             # print(self.lidar.get_scan_modes())
+
+            scan_modes = self.lidar.get_scan_modes()
+            print("scan modes :")
+            for scan_mode in scan_modes:
+                print(scan_mode)
 
         except Exception as e:
             print("Exception",e)
@@ -53,8 +64,9 @@ class Grabber:
         try:
             self.lidar.set_motor_pwm(self.pwm)
             time.sleep(1)
-
-            scan_generator = self.lidar.force_scan()
+            print("start grab")
+            #scan_generator = self.lidar.force_scan()
+            scan_generator = self.lidar.start_scan()
             ptime = int(get_now_timestamp())
             print("%d"%ptime)
 
@@ -82,3 +94,9 @@ class Grabber:
 
     def disconnect(self):
         self.lidar.disconnect()
+
+
+if __name__ == '__main__':
+    llog = LidarLog(Manager())
+    grab = Grabber(llog, 550)
+    grab.connect()
