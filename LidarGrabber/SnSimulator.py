@@ -27,6 +27,9 @@ class SnSimulator:
 
         self.Velocity = 0
 
+        self.plugins = None
+
+        self.loadPlugin()
         self.defineProcess()
 
     def StartManager(self):
@@ -92,6 +95,11 @@ class SnSimulator:
 
     def getNumofProc(self):
         return len(self.processes)
+
+    def loadPlugin(self):
+        self.plugins = []
+        #self.plugins.append(Plugin())
+        #플러그인 상속받은 Tracker Algorithm 생성
 
     def setVelocity(self, vel):
         v = int(vel)
