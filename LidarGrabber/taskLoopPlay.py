@@ -82,7 +82,7 @@ class taskLoopPlay(QThread):
                     self.simlog.enQueuePlayData(data)
 
             #Sim Mode
-            if td == self.PLAYMODE_LOAD:
+            if td == self.PLAYMODE_LOAD: #Load Data
                 lq = self.simlog.getQueueData()
                 self.guiApp.setStatus("Loading origin data")
                 print("store origin data")

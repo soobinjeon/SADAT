@@ -22,7 +22,7 @@ class LidarLog:
             data['angle'] = scandata.angle
             data['distance'] = scandata.distance
             data['timestamp'] = timestamp
-            #print(data)
+            #print(data['start_flag'],data['angle'], data['distance'])
             self.lidarDataQueue.put(data)
 
     def getQueueData(self):

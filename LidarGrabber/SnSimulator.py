@@ -41,11 +41,14 @@ class SnSimulator:
         print("end Process")
 
     def setAction(self, mode):
-
+        #set mode change
         if mode is Mode.MODE_SIM:
             self.lpthread.setSimMode()
         elif mode is Mode.MODE_LOG:
             self.lpthread.setLoggingMode()
+            #Need to modify
+            self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_SIM)
+
 
         self.cleanProcess()
         proc = self.procs[mode]
@@ -83,7 +86,7 @@ class SnSimulator:
         self.lpthread.start()
 
         # init log process
-        self.procs[Mode.MODE_LOG] = ModeLog(self.rawlog)
+        self.procs[Mode.MODE_LOG] = ModeLog(self.rawlog, self.simlog)
         self.procs[Mode.MODE_SIM] = ModeSimulation(self.simlog)
         print(self.procs)
 

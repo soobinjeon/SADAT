@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QTimer
 
 import SnSimulator
 from gui.menuExit import menuExit
-from gui.menuLoadSim import menuLoadSim
+from gui.menuFiles import menuLoadSim, menuLogPlay
 from gui.menuSim import menuSim
 
 from multiprocessing import Manager
@@ -123,11 +123,12 @@ class MyApp(QMainWindow):
 
         #File Menu
         filemenu = menubar.addMenu('&File')
-        filemenu.addAction(menuLoadSim('Load log files..',self))
+        filemenu.addAction(menuLoadSim('Load log files..', self))
+        filemenu.addAction(menuLogPlay('Log Play',self))
         filemenu.addAction(menuExit('exit', self))
 
         #Simulation Menu
-        simmenu = menubar.addMenu('&Simulation')
+        simmenu = menubar.addMenu('&Simulation}')
         simmenu.addAction(menuSim('Play',self))
         self.guiGroup[GUI_GROUP.LOGPLAY_MODE].append(simmenu)
 
@@ -236,9 +237,17 @@ class MyApp(QMainWindow):
         # print(len(x))
         self.xpos.clear()
         self.ypos.clear()
+
         for idx, item in enumerate(self.prevx):
             self.xpos.append((self.prevx[idx] / self.panviewSize) + (self.width() / 2))
             self.ypos.append((self.prevy[idx] / self.panviewSize) + (self.height() / 2))
+
+        # cnt = 0
+        # for idx, item in enumerate(self.xpos):
+        #     if self.xpos[idx] != 500.0 and self.ypos[idx] != 500.0:
+        #         cnt += 1
+        #
+        # print('pcnt-', len(self.xpos), 'valudate-',cnt)
 
         # print(self.target_x_pos, self.target_y_pos)
         self.update()

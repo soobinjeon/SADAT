@@ -27,7 +27,7 @@ class LogSimDispatcher(Dispatcher):
     def loadData(self):
         print("lodata method called")
         if self.opensrc == "":
-            self.opensrc = "../../Data/data_2.json"
+            self.opensrc = "../../Data/data_3.json"
 
         with open(self.opensrc, "r") as st_json:
             print("Load log Data..")

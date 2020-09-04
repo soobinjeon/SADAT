@@ -14,40 +14,40 @@ def get_now_timestamp():
 
 
 class Grabber:
-    lidar = None
 
     def __init__(self, _log, motorpwm):
         self.log = _log
         self.log.initLog(motorpwm)
         self.pwm = motorpwm
+        self.lidar = None
 
     def connect(self):
         try:
             self.lidar = PyRPlidar()
             #Linux
-            self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
+            #self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
             #Windows
-            #self.lidar.connect(port="COM4", baudrate=256000, timeout=3)
+            self.lidar.connect(port="COM4", baudrate=256000, timeout=3)
             # Linux   : "/dev/ttyUSB0"
             # MacOS   : "/dev/cu.SLAB_USBtoUART"
             # Windows : "COM5"
-            print("info")
-            print(self.lidar.get_info())
+            # print("info")
+            # print(self.lidar.get_info())
             # print("health")
             # print(self.lidar.get_health())
-            print("samplerate")
-            print(self.lidar.get_samplerate())
+            # print("samplerate")
+            # print(self.lidar.get_samplerate())
             print("mode")
             print(self.lidar.get_scan_mode_count())
-            # print("typical")
-            # print(self.lidar.get_scan_mode_typical())
-            # print("scan mode")
-            # print(self.lidar.get_scan_modes())
+            print("typical")
+            print(self.lidar.get_scan_mode_typical())
+            print("scan mode")
+            print(self.lidar.get_scan_modes())
 
-            scan_modes = self.lidar.get_scan_modes()
-            print("scan modes :")
-            for scan_mode in scan_modes:
-                print(scan_mode)
+            # scan_modes = self.lidar.get_scan_modes()
+            # print("scan modes :")
+            # for scan_mode in scan_modes:
+            #     print(scan_mode)
 
         except Exception as e:
             print("Exception",e)
@@ -63,23 +63,25 @@ class Grabber:
     def startLidar(self):
         try:
             self.lidar.set_motor_pwm(self.pwm)
-            time.sleep(1)
+            time.sleep(0.5)
             print("start grab")
-            #scan_generator = self.lidar.force_scan()
-            scan_generator = self.lidar.start_scan()
+            scan_generator = self.lidar.start_scan_express(3)
             ptime = int(get_now_timestamp())
             print("%d"%ptime)
 
             prevtime = 0
+            c_cnt = 0
             for count, scan in enumerate(scan_generator()):
                 self.log.enQueueData(scan, get_now_timestamp())
                 ctime = int(get_now_timestamp())
                 tgap = ctime - ptime
 
                 if tgap > prevtime:
-                    print("Time : ",tgap)
+                    print("Time : ",tgap,count,(count-c_cnt))
+                    c_cnt = count
 
-                if tgap == 60:
+                if tgap == 30:
+                    self.log.enQueueData('interrupt', get_now_timestamp())
                     break
 
                 prevtime = tgap
@@ -99,4 +101,4 @@ class Grabber:
 if __name__ == '__main__':
     llog = LidarLog(Manager())
     grab = Grabber(llog, 550)
-    grab.connect()
+    grab.startGrab()
