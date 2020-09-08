@@ -22,8 +22,8 @@ class Logger:
             for data in iter(dataqueue.get, 'interrupt'):
                 rawdata.append(data)
                 cnt += 1
-
-            print(outdata)
+            print('total cnt = ',cnt)
+            #print(outdata)
             with open('../../data.json','w') as outfile:
                 print('data writing')
                 json.dump(outdata, outfile)
@@ -33,3 +33,5 @@ class Logger:
     def logPlay(self, dq):
         for data in iter(dq.get, 'interrupt'):
            self.simlog.enQueueLoggingData(data)
+
+        self.simlog.enQueueLoggingData('interrupt')

@@ -81,6 +81,7 @@ class taskLoopPlay(QThread):
                 for data in iter(lq.get, 'interrupt'):
                     self.simlog.enQueuePlayData(data)
 
+
             #Sim Mode
             if td == self.PLAYMODE_LOAD: #Load Data
                 lq = self.simlog.getQueueData()

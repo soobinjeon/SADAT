@@ -48,6 +48,7 @@ class SnSimulator:
             self.lpthread.setLoggingMode()
             #Need to modify
             self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_SIM)
+            #self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_SAVE)
 
 
         self.cleanProcess()

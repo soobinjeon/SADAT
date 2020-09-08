@@ -71,16 +71,26 @@ class Grabber:
 
             prevtime = 0
             c_cnt = 0
+            startcnt = 0
+            dataset = []
             for count, scan in enumerate(scan_generator()):
-                self.log.enQueueData(scan, get_now_timestamp())
+
+                #self.log.enQueueData(scan, get_now_timestamp())
+                dataset.append(self.log.makeData(scan, get_now_timestamp()))
                 ctime = int(get_now_timestamp())
                 tgap = ctime - ptime
 
-                if tgap > prevtime:
-                    print("Time : ",tgap,count,(count-c_cnt))
-                    c_cnt = count
+                if scan.start_flag:
+                    startcnt += 1
+                    self.log.enQueueDataNew(dataset)
+                    dataset = []
 
-                if tgap == 30:
+                if tgap > prevtime:
+                    print("Time : ",tgap,count,(count-c_cnt),startcnt)
+                    c_cnt = count
+                    startcnt = 0
+
+                if tgap == 120:
                     self.log.enQueueData('interrupt', get_now_timestamp())
                     break
 

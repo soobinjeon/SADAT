@@ -77,8 +77,6 @@ class MyApp(QMainWindow):
 
         self.gcontrol = GUI_CONTROLLER()
 
-        self.prevx = []
-        self.prevy = []
         self.xpos = []
         self.ypos = []
 
@@ -247,7 +245,7 @@ class MyApp(QMainWindow):
         #     if self.xpos[idx] != 500.0 and self.ypos[idx] != 500.0:
         #         cnt += 1
         #
-        # print('pcnt-', len(self.xpos), 'valudate-',cnt)
+        #print('pcnt-', len(self.xpos))
 
         # print(self.target_x_pos, self.target_y_pos)
         self.update()

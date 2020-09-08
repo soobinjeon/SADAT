@@ -27,20 +27,21 @@ class LogSimDispatcher(Dispatcher):
     def loadData(self):
         print("lodata method called")
         if self.opensrc == "":
-            self.opensrc = "../../Data/data_3.json"
+            self.opensrc = "../../Data/data_1.json"
 
         with open(self.opensrc, "r") as st_json:
             print("Load log Data..")
             ldata = json.load(st_json)
             return ldata
 
-    def logDispatch(self, rawdata):
+    def logDispatch_old(self, rawdata):
         logcnt = 0
         hasStartFlag = False
         datalen = len(rawdata['rawdata'])
 
         while logcnt < datalen:
             data = rawdata['rawdata'][logcnt]
+
             start_flag = data['start_flag']
 
             if hasStartFlag == False and start_flag == True:
@@ -85,6 +86,57 @@ class LogSimDispatcher(Dispatcher):
                 logcnt += 1
 
         self.Log.enQueueData(self.getEOFMessage())
+
+    def logDispatch(self, rawdata):
+        logcnt = 0
+        hasStartFlag = False
+
+        tempX = []
+        tempY = []
+        tempXY = []
+        timestamp = 0
+        scan_cnt = 0
+        datalen = len(rawdata['rawdata'])
+
+        for rdata in rawdata['rawdata']:
+
+            for data in rdata:
+                start_flag = data['start_flag']
+                timestamp = data['timestamp']
+
+                if start_flag is True:
+                    if len(tempX) > 0:
+                        # insert XY coord
+                        tempXY.append(tempX)
+                        tempXY.append(tempY)
+                        tempXY.append(timestamp)
+                        tempXY.append(start_flag)
+
+                        # insert XY into shared log
+                        self.Log.enQueueData(tempXY)
+
+                    scan_cnt = 0
+                    tempX = []
+                    tempY = []
+                    tempXY = []
+                    self.inputdata(data, tempX, tempY)
+
+                else:
+                    # pass
+                    self.inputdata(data, tempX, tempY)
+
+                logcnt += 1
+                scan_cnt += 1
+
+        self.Log.enQueueData(self.getEOFMessage())
+
+    def inputdata(self, data, tempx, tempy):
+        distance = data['distance']
+        angle = data['angle']
+        sflag = data['start_flag']
+        tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
+        tempx.append(tx)
+        tempy.append(ty)
 
     def getCoordinatebyLidar(self, distance, angle):
         x = distance * math.cos(math.radians(90 - angle))
