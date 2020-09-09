@@ -77,27 +77,13 @@ class LogPlayDispatcher(Dispatcher):
                 self.testrawdata.append(tempdata)
 
         # for test
-        with open('../../LogPlayDisrawdata.json', 'w') as outfile:
-            print('Raw data writing')
-            #json.dump(self.testrawdata, outfile)
-            for d in self.testrawdata:
-                outfile.write(d+'\n')
-            print("Raw data Write Complete")
+        # with open('../../LogPlayDisrawdata.json', 'w') as outfile:
+        #     print('Raw data writing')
+        #     #json.dump(self.testrawdata, outfile)
+        #     for d in self.testrawdata:
+        #         outfile.write(d+'\n')
+        #     print("Raw data Write Complete")
         #self.Log.enQueueData(self.getEOFMessage())
-
-    def inputdata(self, data, tempx, tempy):
-        distance = data['distance']
-        angle = data['angle']
-        sflag = data['start_flag']
-        tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
-        tempx.append(tx)
-        tempy.append(ty)
-
-    def getCoordinatebyLidar(self, distance, angle):
-        x = distance * math.cos(math.radians(90 - angle))
-        y = -1 * (distance * math.sin(math.radians(90 - angle)))
-
-        return x, y
 
 # if __name__ == '__main__':
 #     manager = Manager()

@@ -91,16 +91,19 @@ class MyApp(QMainWindow):
         self.guiGroup[GUI_GROUP.LOGPLAY_MODE] = []
 
         self.statusBar()
+        self.statusBar().setStyleSheet("background-color : white")
         self.initMenubar()
         self.initToolbar()
         self.initplanview()
 
         self.setStyleSheet("""QMenuBar {
                  background-color: Gray;
+                 color: white;
                 }
 
              QMenuBar::item {
-                 background: gray;
+                 background: Gray;
+                 color: white;
              }""")
 
         p = self.palette()
@@ -109,7 +112,7 @@ class MyApp(QMainWindow):
         self.modeChanger(GUI_GROUP.ALL, False)
         self.setWindowTitle('Lidar Cluster')
         #self.setStyleSheet("background-color: dimgray;")
-        self.setGeometry(300, 300, 1000, 1000)
+        self.setGeometry(300, 300, 1500, 1000)
         self.show()
 
     def initMenubar(self):
@@ -124,7 +127,7 @@ class MyApp(QMainWindow):
         filemenu.addAction(menuExit('exit', self))
 
         #Simulation Menu
-        simmenu = menubar.addMenu('&Simulation}')
+        simmenu = menubar.addMenu('&Simulation')
         simmenu.addAction(menuSim('Play',self))
         self.guiGroup[GUI_GROUP.LOGPLAY_MODE].append(simmenu)
 
@@ -140,6 +143,7 @@ class MyApp(QMainWindow):
         self.toolbar.addAction(toolpause)
         self.toolbar.addAction(toolresume)
         self.toolbar.addWidget(self.toolvel)
+        self.toolbar.setStyleSheet("color: white")
 
         #slider
         slider = toolbarSlider(Qt.Horizontal, self)
