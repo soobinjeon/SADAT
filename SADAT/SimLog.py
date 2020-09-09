@@ -1,16 +1,19 @@
 import time
 
-class SimLog:
-    LOGPLAY_MODE_SIM = 0
+from LogP import LogP
+
+
+class SimLog(LogP):
+    LOGPLAY_MODE_LOGPLAY = 0
     LOGPLAY_MODE_SAVE = 1
 
     def __init__(self, manager):
-        print("Sim Log Init")
-        self.logginData = manager.Queue()
-        self.simLogData = manager.Queue()
+        super().__init__()
+        self.logginData = self.addQueueList(manager.Queue())
+        self.simLogData = self.addQueueList(manager.Queue())
         self.playData = manager.Queue()
 
-        self.mode = self.LOGPLAY_MODE_SIM
+        self.mode = self.LOGPLAY_MODE_LOGPLAY
 
     def initLog(self):
 
@@ -41,16 +44,11 @@ class SimLog:
     def getQueueLoggingData(self):
         return self.logginData
 
-    def disconnectAllData(self):
-        self.enQueueData('interrupt')
-        self.enQueueLoggingData('interrupt')
-        self.enQueuePlayData('interrupt')
-
     def setLogPlayMode(self, mode):
         self.mode = mode
 
     def isLogPlayMode(self):
-        return self.mode is self.LOGPLAY_MODE_SIM
+        return self.mode is self.LOGPLAY_MODE_LOGPLAY
 
     def isLoggingMode(self):
         return self.mode is self.LOGPLAY_MODE_SAVE

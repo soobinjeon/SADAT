@@ -1,9 +1,9 @@
-from pyrplidar import PyRPlidar
+import platform
 import time
 import datetime as pydatetime
-
 from LidarLog import LidarLog
 from multiprocessing import Manager
+from library.pyrplidar.pyrplidar import PyRPlidar
 
 
 def get_now():
@@ -24,10 +24,12 @@ class Grabber:
     def connect(self):
         try:
             self.lidar = PyRPlidar()
-            #Linux
-            #self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
+            if platform.system() is 'Windows':
+                self.lidar.connect(port="COM4", baudrate=256000, timeout=3, isWindows=True)
+            else:
+                self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
             #Windows
-            self.lidar.connect(port="COM4", baudrate=256000, timeout=3)
+
             # Linux   : "/dev/ttyUSB0"
             # MacOS   : "/dev/cu.SLAB_USBtoUART"
             # Windows : "COM5"
@@ -80,6 +82,7 @@ class Grabber:
                 ctime = int(get_now_timestamp())
                 tgap = ctime - ptime
 
+                #Send Data after 1 cycle
                 if scan.start_flag:
                     startcnt += 1
                     self.log.enQueueDataNew(dataset)

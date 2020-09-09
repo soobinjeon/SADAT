@@ -46,8 +46,9 @@ class SnSimulator:
             self.lpthread.setSimMode()
         elif mode is Mode.MODE_LOG:
             self.lpthread.setLoggingMode()
-            #Need to modify
-            self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_SIM)
+            #Need to modify for Logging during logplay
+            #default simulation mode
+            self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_LOGPLAY)
             #self.simlog.setLogPlayMode(SimLog.LOGPLAY_MODE_SAVE)
 
 
@@ -67,7 +68,14 @@ class SnSimulator:
 
     def cleanProcess(self):
         if len(self.processes) != 0:
-            #clean process start
+            # clean process start
+
+            # send interrupt message to logs
+            # interrupt 를 enqueue했는데 더이상 빼가는 프로세스가 없으면 잔여 메세지가 남을 수 있고,
+            # 추후 프로세스 새로 생성시 잔여 메시지 때문에 바로 프로세스가 멈출 가능성 있음
+            self.rawlog.DisconnectLogs()
+            self.simlog.DisconnectLogs()
+
             print("Wait process finishing for cleaning process list")
             for p in self.processes:
                 p.join()

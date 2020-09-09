@@ -1,7 +1,6 @@
 import math
 import json
 import time
-from PyQt5.QtCore import pyqtSignal
 
 from Dispatcher import Dispatcher
 
@@ -33,59 +32,6 @@ class LogSimDispatcher(Dispatcher):
             print("Load log Data..")
             ldata = json.load(st_json)
             return ldata
-
-    def logDispatch_old(self, rawdata):
-        logcnt = 0
-        hasStartFlag = False
-        datalen = len(rawdata['rawdata'])
-
-        while logcnt < datalen:
-            data = rawdata['rawdata'][logcnt]
-
-            start_flag = data['start_flag']
-
-            if hasStartFlag == False and start_flag == True:
-                #print("sflag",logcnt,end=", ")
-                tempX = []
-                tempY = []
-                tempXY = []
-                innerSflag = False
-                innercnt = 0
-                timestamp = 0
-                sflag = False
-                while not innerSflag and logcnt < datalen:
-                    data = rawdata['rawdata'][logcnt]
-                    if innercnt != 0:
-                        innerSflag = data['start_flag']
-
-                    distance = data['distance']
-                    angle = data['angle']
-                    timestamp = data['timestamp']
-                    sflag = data['start_flag']
-                    tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
-                    tempX.append(tx)
-                    tempY.append(ty)
-
-
-                    innercnt += 1
-                    logcnt += 1
-
-                #insert XY coord
-                tempXY.append(tempX)
-                tempXY.append(tempY)
-                tempXY.append(timestamp)
-                tempXY.append(sflag)
-
-                #insert XY into shared log
-                self.Log.enQueueData(tempXY)
-                #print(self.Log.getQueueData().qsize(), tempXY[0][0], tempXY[1][0])
-                #self.signal.emit(tempXY)
-                #print(self.Log.getQueueData())
-                #print(innercnt)
-            else:
-                logcnt += 1
-
-        self.Log.enQueueData(self.getEOFMessage())
 
     def logDispatch(self, rawdata):
         logcnt = 0
@@ -143,6 +89,59 @@ class LogSimDispatcher(Dispatcher):
         y = -1 * (distance * math.sin(math.radians(90 - angle)))
 
         return x, y
+
+    def logDispatch_old(self, rawdata):
+        logcnt = 0
+        hasStartFlag = False
+        datalen = len(rawdata['rawdata'])
+
+        while logcnt < datalen:
+            data = rawdata['rawdata'][logcnt]
+
+            start_flag = data['start_flag']
+
+            if hasStartFlag == False and start_flag == True:
+                #print("sflag",logcnt,end=", ")
+                tempX = []
+                tempY = []
+                tempXY = []
+                innerSflag = False
+                innercnt = 0
+                timestamp = 0
+                sflag = False
+                while not innerSflag and logcnt < datalen:
+                    data = rawdata['rawdata'][logcnt]
+                    if innercnt != 0:
+                        innerSflag = data['start_flag']
+
+                    distance = data['distance']
+                    angle = data['angle']
+                    timestamp = data['timestamp']
+                    sflag = data['start_flag']
+                    tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
+                    tempX.append(tx)
+                    tempY.append(ty)
+
+
+                    innercnt += 1
+                    logcnt += 1
+
+                #insert XY coord
+                tempXY.append(tempX)
+                tempXY.append(tempY)
+                tempXY.append(timestamp)
+                tempXY.append(sflag)
+
+                #insert XY into shared log
+                self.Log.enQueueData(tempXY)
+                #print(self.Log.getQueueData().qsize(), tempXY[0][0], tempXY[1][0])
+                #self.signal.emit(tempXY)
+                #print(self.Log.getQueueData())
+                #print(innercnt)
+            else:
+                logcnt += 1
+
+        self.Log.enQueueData(self.getEOFMessage())
 
 # if __name__ == '__main__':
 #     manager = Manager()

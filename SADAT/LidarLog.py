@@ -1,13 +1,17 @@
 import json
 
+from LogP import LogP
 
-class LidarLog:
+
+class LidarLog(LogP):
     motorpwm = 0
 
     def __init__(self, manager):
+        super().__init__()
         print("Lidar Log Init")
-        self.lidarDataQueue = manager.Queue()
+        self.lidarDataQueue = self.addQueueList(manager.Queue())
         # self.rawdata = [] #for test
+
     def initLog(self, motorpwm):
         self.motorpwm = motorpwm
 
@@ -55,4 +59,3 @@ class LidarLog:
 
     def getQueueData(self):
         return self.lidarDataQueue
-
