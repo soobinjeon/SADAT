@@ -1,3 +1,4 @@
+import math
 import time
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
@@ -95,7 +96,7 @@ class taskLoopPlay(QThread):
                     self.originData.append(data)
                     tcnt += 1
                     if prevtime < int(data[2]):
-                        print("frame per sec :",tcnt)
+                        #print("frame per sec :",tcnt)
                         fps += tcnt
                         fpscnt += 1
                         tcnt = 0
@@ -105,7 +106,7 @@ class taskLoopPlay(QThread):
                     #time.sleep(1 / self.vel)
 
                 #calculate frame per sec
-                fps = 0 if fpscnt == 0 else int(fps / fpscnt)
+                fps = 0 if fpscnt == 0 else int(round(fps / fpscnt))
 
                 self.pbInfo.mode = self.PLAYMODE_LOAD
                 self.pbInfo.maxLength = len(self.originData)

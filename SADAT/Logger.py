@@ -14,7 +14,6 @@ class Logger:
         dataqueue = self.log.getQueueData()
 
         if self.simlog.isLogPlayMode():
-            print('log play start')
             self.logPlay(dataqueue)
         else:
             print('data write start')

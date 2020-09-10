@@ -1,7 +1,6 @@
 import math
 import json
 import time
-from PyQt5.QtCore import pyqtSignal
 
 from Dispatcher import Dispatcher
 
@@ -17,7 +16,6 @@ class LogSimDispatcher(Dispatcher):
         print(self.guiApp)
 
     def dispatch(self):
-        print("Dispatch")
         time.sleep(1)
         self.Log.initLog()
         self._rawdata = self.loadData()
@@ -33,6 +31,49 @@ class LogSimDispatcher(Dispatcher):
             print("Load log Data..")
             ldata = json.load(st_json)
             return ldata
+
+    def logDispatch(self, rawdata):
+        logcnt = 0
+        hasStartFlag = False
+
+        tempX = []
+        tempY = []
+        tempXY = []
+        timestamp = 0
+        scan_cnt = 0
+        datalen = len(rawdata['rawdata'])
+
+        for rdata in rawdata['rawdata']:
+
+            for data in rdata:
+                start_flag = data['start_flag']
+                timestamp = data['timestamp']
+
+                if start_flag is True:
+                    if len(tempX) > 0:
+                        # insert XY coord
+                        tempXY.append(tempX)
+                        tempXY.append(tempY)
+                        tempXY.append(timestamp)
+                        tempXY.append(start_flag)
+
+                        # insert XY into shared log
+                        self.Log.enQueueData(tempXY)
+
+                    scan_cnt = 0
+                    tempX = []
+                    tempY = []
+                    tempXY = []
+                    self.inputdata(data, tempX, tempY)
+
+                else:
+                    # pass
+                    self.inputdata(data, tempX, tempY)
+
+                logcnt += 1
+                scan_cnt += 1
+
+        self.Log.enQueueData(self.getEOFMessage())
 
     def logDispatch_old(self, rawdata):
         logcnt = 0
@@ -86,63 +127,6 @@ class LogSimDispatcher(Dispatcher):
                 logcnt += 1
 
         self.Log.enQueueData(self.getEOFMessage())
-
-    def logDispatch(self, rawdata):
-        logcnt = 0
-        hasStartFlag = False
-
-        tempX = []
-        tempY = []
-        tempXY = []
-        timestamp = 0
-        scan_cnt = 0
-        datalen = len(rawdata['rawdata'])
-
-        for rdata in rawdata['rawdata']:
-
-            for data in rdata:
-                start_flag = data['start_flag']
-                timestamp = data['timestamp']
-
-                if start_flag is True:
-                    if len(tempX) > 0:
-                        # insert XY coord
-                        tempXY.append(tempX)
-                        tempXY.append(tempY)
-                        tempXY.append(timestamp)
-                        tempXY.append(start_flag)
-
-                        # insert XY into shared log
-                        self.Log.enQueueData(tempXY)
-
-                    scan_cnt = 0
-                    tempX = []
-                    tempY = []
-                    tempXY = []
-                    self.inputdata(data, tempX, tempY)
-
-                else:
-                    # pass
-                    self.inputdata(data, tempX, tempY)
-
-                logcnt += 1
-                scan_cnt += 1
-
-        self.Log.enQueueData(self.getEOFMessage())
-
-    def inputdata(self, data, tempx, tempy):
-        distance = data['distance']
-        angle = data['angle']
-        sflag = data['start_flag']
-        tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
-        tempx.append(tx)
-        tempy.append(ty)
-
-    def getCoordinatebyLidar(self, distance, angle):
-        x = distance * math.cos(math.radians(90 - angle))
-        y = -1 * (distance * math.sin(math.radians(90 - angle)))
-
-        return x, y
 
 # if __name__ == '__main__':
 #     manager = Manager()

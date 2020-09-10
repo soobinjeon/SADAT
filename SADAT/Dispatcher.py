@@ -1,3 +1,4 @@
+import math
 from abc import *
 from PyQt5.QtCore import pyqtSignal
 
@@ -22,3 +23,17 @@ class Dispatcher(metaclass=ABCMeta):
     @abstractmethod
     def dispatch(self):
         pass
+
+    def inputdata(self, data, tempx, tempy):
+        distance = data['distance']
+        angle = data['angle']
+        sflag = data['start_flag']
+        tx, ty = self.getCoordinatebyLidar(distance=distance, angle=angle)
+        tempx.append(tx)
+        tempy.append(ty)
+
+    def getCoordinatebyLidar(self, distance, angle):
+        x = distance * math.cos(math.radians(90 - angle))
+        y = -1 * (distance * math.sin(math.radians(90 - angle)))
+
+        return x, y

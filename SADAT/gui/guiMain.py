@@ -1,8 +1,8 @@
 import sys
 
-from PyQt5.QtGui import QIcon, QPainter, QPen
-from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QSlider
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPainter, QPen
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import Qt
 
 import SnSimulator
 from gui.menuExit import menuExit
@@ -13,7 +13,6 @@ from multiprocessing import Manager
 
 from gui.toolbarOption import toolbarPlay, toolbarEditor
 from gui.toolbarSlider import toolbarSlider
-from taskPlanview import taskPlanview
 
 class GUI_GROUP:
     ALL = 0
@@ -92,26 +91,28 @@ class MyApp(QMainWindow):
         self.guiGroup[GUI_GROUP.LOGPLAY_MODE] = []
 
         self.statusBar()
+        self.statusBar().setStyleSheet("background-color : white")
         self.initMenubar()
         self.initToolbar()
         self.initplanview()
-        #self.timer = QTimer(self)
-        #self.timer.timeout.connect(self.changePosition)
-        #self.timer.start(int(1000 / self.vel))
+
         self.setStyleSheet("""QMenuBar {
                  background-color: Gray;
+                 color: white;
                 }
 
              QMenuBar::item {
-                 background: gray;
+                 background: Gray;
+                 color: white;
              }""")
+
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.black)
         self.setPalette(p)
         self.modeChanger(GUI_GROUP.ALL, False)
         self.setWindowTitle('Lidar Cluster')
         #self.setStyleSheet("background-color: dimgray;")
-        self.setGeometry(300, 300, 1000, 1000)
+        self.setGeometry(300, 300, 1500, 1000)
         self.show()
 
     def initMenubar(self):
@@ -126,7 +127,7 @@ class MyApp(QMainWindow):
         filemenu.addAction(menuExit('exit', self))
 
         #Simulation Menu
-        simmenu = menubar.addMenu('&Simulation}')
+        simmenu = menubar.addMenu('&Simulation')
         simmenu.addAction(menuSim('Play',self))
         self.guiGroup[GUI_GROUP.LOGPLAY_MODE].append(simmenu)
 
@@ -142,6 +143,7 @@ class MyApp(QMainWindow):
         self.toolbar.addAction(toolpause)
         self.toolbar.addAction(toolresume)
         self.toolbar.addWidget(self.toolvel)
+        self.toolbar.setStyleSheet("color: white")
 
         #slider
         slider = toolbarSlider(Qt.Horizontal, self)
@@ -170,9 +172,6 @@ class MyApp(QMainWindow):
 
     #event
     def wheelEvent(self, e):
-        #print('wheel')
-        #print('(%d %d)' % (e.angleDelta().x(), e.angleDelta().y()))
-
         wvalue = e.angleDelta().y()
         div = 0.025
         max = 0.6
@@ -197,7 +196,7 @@ class MyApp(QMainWindow):
             self.updatePosition()
 
     def draw_point(self, qp):
-        #print('draw paint')
+        #draw paint
         qp.setPen(QPen(Qt.white, 1))
 
 
@@ -240,17 +239,7 @@ class MyApp(QMainWindow):
             self.xpos.append((self.prevx[idx] / self.panviewSize) + (self.width() / 2))
             self.ypos.append((self.prevy[idx] / self.panviewSize) + (self.height() / 2))
 
-        # cnt = 0
-        # for idx, item in enumerate(self.xpos):
-        #     if self.xpos[idx] != 500.0 and self.ypos[idx] != 500.0:
-        #         cnt += 1
-        #
-        #print('pcnt-', len(self.xpos))
-
-        # print(self.target_x_pos, self.target_y_pos)
         self.update()
-
-
 
     def playbackstatus(self, pbinfo):
         if pbinfo.mode == self.simulator.lpthread.PLAYMODE_LOAD:
