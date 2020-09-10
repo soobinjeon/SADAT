@@ -24,7 +24,7 @@ class Grabber:
     def connect(self):
         try:
             self.lidar = PyRPlidar()
-            if platform.system() is 'Windows':
+            if platform.system() == 'Windows':
                 self.lidar.connect(port="COM4", baudrate=256000, timeout=3, isWindows=True)
             else:
                 self.lidar.connect(port="/dev/ttyUSB0", baudrate=256000, timeout=3)
