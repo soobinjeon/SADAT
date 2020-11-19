@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt
 
 import SnSimulator
+from gui.EventHandler import MouseEventHandler
 from gui.menuExit import menuExit
 from gui.menuFiles import menuLoadSim, menuLogPlay
 from gui.menuSim import menuSim
@@ -69,12 +70,18 @@ class MyApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        #for Planview Size and Position
         self.panviewSize = 10
+        self.relx = 0
+        self.rely = 0
+
+        #frame rate
         self.velocity = 15
         #init gui group
         self.guiGroup = {}
 
         self.gcontrol = GUI_CONTROLLER()
+        self.mouseEventHndl = MouseEventHandler()
 
         self.xpos = []
         self.ypos = []
@@ -195,6 +202,14 @@ class MyApp(QMainWindow):
         if self.gcontrol.getCurrentMode() is not GUI_CONTROLLER.PLAYMODE:
             self.updatePosition()
 
+    def mouseMoveEvent(self, e):
+        pass
+        # mevent = self.mouseEventHndl.moveEvent
+        #
+        # if e.buttons() == Qt.LeftButton:
+        #     if mevent.eventMouse(e.globalX(), e.globalY()):
+
+
     def draw_point(self, qp):
         #draw paint
         qp.setPen(QPen(Qt.white, 1))
@@ -236,8 +251,8 @@ class MyApp(QMainWindow):
         self.ypos.clear()
 
         for idx, item in enumerate(self.prevx):
-            self.xpos.append((self.prevx[idx] / self.panviewSize) + (self.width() / 2))
-            self.ypos.append((self.prevy[idx] / self.panviewSize) + (self.height() / 2))
+            self.xpos.append((self.prevx[idx] / self.panviewSize) + (self.width() / 2) + self.relx)
+            self.ypos.append((self.prevy[idx] / self.panviewSize) + (self.height() / 2) + self.rely)
 
         self.update()
 
