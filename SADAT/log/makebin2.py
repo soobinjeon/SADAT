@@ -101,7 +101,7 @@ def runConvert():
     #             cnt = 1
 
 
-#runConvert()
+runConvert()
 cnt = 0
 fulldata = []
 with open('data.dat', 'rb') as fp:

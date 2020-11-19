@@ -4,6 +4,7 @@ class makeLog(metaclass=ABCMeta):
     def __init__(self, filename=None):
         self.filename=None
         self.lf = None
+        self.fullLogData = [] #Lidar Log data
         if filename != None:
             self.filename = filename
 

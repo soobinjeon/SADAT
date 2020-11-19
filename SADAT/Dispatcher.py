@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from abc import *
 from PyQt5.QtCore import pyqtSignal
 
@@ -24,6 +25,12 @@ class Dispatcher(metaclass=ABCMeta):
     def dispatch(self):
         pass
 
+    def inputdataArray(self, data):
+        tx, ty = self.getCoordinatebyLidarNP(distance=data.distance, angle=data.angle)
+        return tx.tolist(), ty.tolist()
+        #tempx.append(tx)
+        #tempy.append(ty)
+
     def inputdata(self, data, tempx, tempy):
         distance = data['distance']
         angle = data['angle']
@@ -36,4 +43,9 @@ class Dispatcher(metaclass=ABCMeta):
         x = distance * math.cos(math.radians(90 - angle))
         y = -1 * (distance * math.sin(math.radians(90 - angle)))
 
+        return x, y
+
+    def getCoordinatebyLidarNP(self, distance, angle):
+        x = distance * np.cos(np.radians(90 - angle))
+        y = -1 * (distance * np.sin(np.radians(90 - angle)))
         return x, y
