@@ -58,10 +58,10 @@ class makeRPLidarLog(makeLog):
                 if dsize.size < 2:
                     break
                 #tolist 지우고 numpy로 계산해봐야함
-                rpdata.distance = fromfile(fp, "<H", dsize[0]).tolist()
-                rpdata.angle = fromfile(fp, "<f", dsize[1]).tolist()
-                rpdata.timestamp = fromfile(fp, "<d", 1).tolist()
-                rpdata.start_flag = fromfile(fp, "<?", 1).tolist()
+                rpdata.distance = fromfile(fp, "<H", dsize[0])
+                rpdata.angle = fromfile(fp, "<f", dsize[1])
+                rpdata.timestamp = fromfile(fp, "<d", 1)
+                rpdata.start_flag = fromfile(fp, "<?", 1)
 
                 self.fullLogData.append(rpdata)
 

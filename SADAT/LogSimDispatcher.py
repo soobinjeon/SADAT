@@ -42,7 +42,7 @@ class LogSimDispatcher(Dispatcher):
             tempX = []
             tempY = []
 
-            self.inputdataArray(rdata, tempX, tempY)
+            tempX, tempY = self.inputdataArray(rdata)
             tempXY.append(tempX)
             tempXY.append(tempY)
             tempXY.append(rdata.timestamp[0])
