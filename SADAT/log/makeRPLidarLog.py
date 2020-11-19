@@ -38,7 +38,6 @@ class RPLidarLogType():
 class makeRPLidarLog(makeLog):
     def __init__(self, filename):
         super().__init__(filename)
-        self.fullLogData = []
 
     def logData(self, loggingdata=None):
         self.fullLogData.append(loggingdata)
@@ -58,10 +57,11 @@ class makeRPLidarLog(makeLog):
                 dsize = fromfile(fp, "<i", 2)
                 if dsize.size < 2:
                     break
-                rpdata.distance = fromfile(fp, "<H", dsize[0])
-                rpdata.angle = fromfile(fp, "<f", dsize[1])
-                rpdata.timestamp = fromfile(fp, "<d", 1)
-                rpdata.start_flag = fromfile(fp, "<?", 1)
+                #tolist 지우고 numpy로 계산해봐야함
+                rpdata.distance = fromfile(fp, "<H", dsize[0]).tolist()
+                rpdata.angle = fromfile(fp, "<f", dsize[1]).tolist()
+                rpdata.timestamp = fromfile(fp, "<d", 1).tolist()
+                rpdata.start_flag = fromfile(fp, "<?", 1).tolist()
 
                 self.fullLogData.append(rpdata)
 

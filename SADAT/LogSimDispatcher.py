@@ -3,6 +3,7 @@ import json
 import time
 
 from Dispatcher import Dispatcher
+from log.makeRPLidarLog import makeRPLidarLog
 
 
 class LogSimDispatcher(Dispatcher):
@@ -25,54 +26,33 @@ class LogSimDispatcher(Dispatcher):
     def loadData(self):
         print("lodata method called")
         if self.opensrc == "":
-            self.opensrc = "../../Data/data_1.json"
+            self.opensrc = "../../Data/data_1.dat"
 
-        with open(self.opensrc, "r") as st_json:
-            print("Load log Data..")
-            ldata = json.load(st_json)
-            return ldata
+        lidarlog = makeRPLidarLog(self.opensrc);
+        return lidarlog.fromlogFile()
 
     def logDispatch(self, rawdata):
-        logcnt = 0
-        hasStartFlag = False
-
         tempX = []
         tempY = []
         tempXY = []
-        timestamp = 0
-        scan_cnt = 0
-        datalen = len(rawdata['rawdata'])
+        cnt = 0
+        #print(len(rawdata))
+        for rdata in rawdata:
+            tempXY = []
+            tempX = []
+            tempY = []
 
-        for rdata in rawdata['rawdata']:
+            self.inputdataArray(rdata, tempX, tempY)
+            tempXY.append(tempX)
+            tempXY.append(tempY)
+            tempXY.append(rdata.timestamp[0])
+            tempXY.append(rdata.start_flag[0])
+            self.Log.enQueueData(tempXY)
+            if cnt % 100 == 0:
+                print(cnt)
+            cnt += 1
 
-            for data in rdata:
-                start_flag = data['start_flag']
-                timestamp = data['timestamp']
-
-                if start_flag is True:
-                    if len(tempX) > 0:
-                        # insert XY coord
-                        tempXY.append(tempX)
-                        tempXY.append(tempY)
-                        tempXY.append(timestamp)
-                        tempXY.append(start_flag)
-
-                        # insert XY into shared log
-                        self.Log.enQueueData(tempXY)
-
-                    scan_cnt = 0
-                    tempX = []
-                    tempY = []
-                    tempXY = []
-                    self.inputdata(data, tempX, tempY)
-
-                else:
-                    # pass
-                    self.inputdata(data, tempX, tempY)
-
-                logcnt += 1
-                scan_cnt += 1
-
+        print("End Read Data")
         self.Log.enQueueData(self.getEOFMessage())
 
     def logDispatch_old(self, rawdata):
