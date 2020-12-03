@@ -1,13 +1,13 @@
 import sys
 from multiprocessing import Manager, Process
-from PyQt5.QtWidgets import QApplication
 from LidarLog import LidarLog
 from ModeLog import ModeLog
 from ModeSimulation import ModeSimulation
 from SimLog import SimLog
 from gui.guiMain import GUI_CONTROLLER
+from sensor.SenAdptMgr import SenAdptMgr
+from sensor.SourceManager import SourceManager
 from simMode import Mode
-import time
 
 from taskLoopPlay import taskLoopPlay
 from taskPlanview import taskPlanview
@@ -19,6 +19,10 @@ class SnSimulator:
     def __init__(self, manager, gapp=None):
         self.guiApp = gapp
         self.manager = manager
+
+        #sensor devices
+        self.srcmanager = SourceManager(manager)
+        self.senadapter = SenAdptMgr(self.srcmanager)
         self.rawlog = LidarLog(manager)
         self.simlog = SimLog(manager)
         self.procs = {}
@@ -29,6 +33,8 @@ class SnSimulator:
 
         self.plugins = None
 
+        #for test
+        self.srcmanager.printSensorList()
         self.loadPlugin()
         self.defineProcess()
 

@@ -1,5 +1,6 @@
 import json
 
+#Module for saving log data
 class Logger:
     def __init__(self, _log, _simlog=None):
         self.log = _log
