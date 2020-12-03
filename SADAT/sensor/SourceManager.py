@@ -5,24 +5,29 @@ class SourceManager:
         self.ActualSensor = dict()
         self.VirtualSensor = dict()
         self.AllSensors = dict()
-        self.manager = manager
 
     def init(self):
         pass
 
-    def addActualSensor(self, sens):
-        self.__addSensor(self.ActualSensor, sens)
+    def addActualSensor(self, sens, man):
+        self.__addSensor(self.ActualSensor, sens, man)
 
-    def addVirtualSensor(self, sens):
-        self.__addSensor(self.VirtualSensor, sens)
+    def addVirtualSensor(self, sens, man):
+        self.__addSensor(self.VirtualSensor, sens, man)
 
-    def __addSensor(self, sendict, sensor):
+    def __addSensor(self, sendict, sensor, man):
         if (sensor.sensorName in sendict) is False:
-            sensor.addManager(self.manager)
+            sensor.setupDataManager(man)
             sendict[sensor.sensorName] = sensor
             self.AllSensors[sensor.sensorName] = sensor
         else:
             print("error SensorName: %s already in SensorList" % sensor.sensorName)
+
+    def getSensorbyName(self, name):
+        if name in self.AllSensors:
+            return self.AllSensors[name]
+        else:
+            return None
 
     def printSensorList(self):
         print("-"*30)

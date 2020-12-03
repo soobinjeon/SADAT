@@ -5,3 +5,6 @@ from sensor.vSensor import vSensor
 class Track(vSensor):
     def __init__(self):
         super().__init__(SensorCategory.Track, "Track")
+
+    def doWorkDataInput(self, inputdata=None):
+        print("doWork Track")

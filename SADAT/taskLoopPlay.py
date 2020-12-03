@@ -3,6 +3,9 @@ import time
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import pyqtSignal
 
+from sensor.vsensor.RPLidar2Dv import RPLidar2Dv
+
+
 class playbackInfo():
 
     def __init__(self):
@@ -19,11 +22,12 @@ class taskLoopPlay(QThread):
     PLAYMODE_PAUSE = 3
     PLAYMODE_SETVALUE = 4
 
-    def __init__(self, parent=None, simlog=None, manager=None):
+    def __init__(self, parent=None, simlog=None, manager=None, srcmanager=None):
         super(taskLoopPlay, self).__init__(parent=parent)
         self.guiApp = parent
         self.task = manager.Queue()
         self.simlog = simlog
+        self.sourcemanager = srcmanager
         self.originData = []
 
         self.pbInfo = playbackInfo()
@@ -85,7 +89,8 @@ class taskLoopPlay(QThread):
 
             #Sim Mode
             if td == self.PLAYMODE_LOAD: #Load Data
-                lq = self.simlog.getQueueData()
+                sen = self.sourcemanager.getSensorbyName(RPLidar2Dv.NAME)
+                lq = sen.getDataQueue()
                 self.guiApp.setStatus("Loading origin data")
                 print("store origin data")
                 tcnt = 0
