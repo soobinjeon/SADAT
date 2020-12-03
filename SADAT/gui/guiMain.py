@@ -355,6 +355,8 @@ class MyApp(QMainWindow):
         self.update()
         #print("pbInfo : ", pbinfo.mode, pbinfo.maxLength, pbinfo.currentIdx)
 
+    def closeEvent(self, event):
+        sys.exit()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
