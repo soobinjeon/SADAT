@@ -13,9 +13,11 @@ class Sensor(metaclass=ABCMeta):
         self.sensorCategory=sensorcate
         self.sensorName=sensorname
 
-        self.data = None
+        self.realtimeData = None
+        self.storedData = None
 
     def doWork(self, inputdata):
+        #self.__cleanstoredData()
         self._doWorkDataInput(inputdata)
         self._doPostWork(inputdata)
 
@@ -27,21 +29,32 @@ class Sensor(metaclass=ABCMeta):
     def _doWorkDataInput(self, inputdata=None):
         pass
 
+    def __cleanstoredData(self):
+        if self.storedData is not None:
+            self.storedData = []
+
     def _setSensorType(self, stype):
         self.sensorType = stype
 
-    def addData(self, data):
-        self.data.put(data)
+    def addRealtimeData(self, data):
+        self.realtimeData.put(data)
 
-    def getDataQueue(self):
-        return self.data
+    def getRealtimeDataQueue(self):
+        return self.realtimeData
+
+    def _addStoredData(self, inputdata):
+        self.storedData.append(inputdata)
+
+    def getStoredDataset(self):
+        return self.storedData
 
     def setupDataManager(self, manager):
         if manager is not None:
-            self.data = manager.Queue()
+            self.realtimeData = manager.Queue()
+            self.storedData = manager.list()
 
     def DisconnectLogs(self):
-        self.data.put(self.INTERRUPT_MSG)
+        self.realtimeData.put(self.INTERRUPT_MSG)
 
     def _inputdataArray(self, data):
         tx, ty = self.__getCoordinatebyLidarNP(distance=data.distance, angle=data.angle)

@@ -22,7 +22,7 @@ class RPLidar2Dv(vSensor):
             tempXY.append(tempY)
             tempXY.append(rdata.timestamp[0])
             tempXY.append(rdata.start_flag[0])
-            self.addData(tempXY)
+            self._addSimData(tempXY)
             #self.Log.enQueueData(tempXY)
             # if cnt % 100 == 0:
             #     print(cnt)

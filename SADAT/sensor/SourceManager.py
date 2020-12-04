@@ -6,6 +6,8 @@ class SourceManager:
         self.VirtualSensor = dict()
         self.AllSensors = dict()
 
+        self.dataLoadQueue = manager.Queue()
+
     def init(self):
         pass
 
@@ -28,6 +30,18 @@ class SourceManager:
             return self.AllSensors[name]
         else:
             return None
+
+    def simEvent(self, evalue):
+        self.dataLoadQueue.put(evalue)
+        self.dataLoadQueue.put('interrupt')
+
+    def waitSimDataLoad(self):
+        loadedSensor = None
+
+        for data in iter(self.dataLoadQueue.get, 'interrupt'):
+            if data is not None and len(data) > 0:
+                loadedSensor = data
+        return loadedSensor
 
     def printSensorList(self):
         print("-"*30)

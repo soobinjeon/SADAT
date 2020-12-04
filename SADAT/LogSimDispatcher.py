@@ -21,6 +21,7 @@ class LogSimDispatcher(Dispatcher):
     def dispatch(self):
         self.loadData()
         self.logDispatch()
+        self.sendEvent()
         print("end Process")
 
     def loadData(self):
@@ -39,3 +40,12 @@ class LogSimDispatcher(Dispatcher):
                 val = self._rawdata[scate]
                 sensor = self.sourcemanager.AllSensors[scate]
                 sensor.doWork(val)
+        print("Data Load Finished")
+
+    def sendEvent(self):
+        print("send Event")
+        loadedsens = list()
+        # send event to taskLoopPlay to wake up sim receive module
+        for data in self._rawdata.keys():
+            loadedsens.append(data)
+        self.sourcemanager.simEvent(loadedsens)

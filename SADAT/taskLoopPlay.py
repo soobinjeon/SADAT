@@ -29,7 +29,7 @@ class taskLoopPlay(QThread):
         self.task = manager.Queue()
         self.simlog = simlog
         self.sourcemanager = srcmanager
-        self.originData = []
+        self.originData = dict()
 
         self.pbInfo = playbackInfo()
         self.playidx = 0
@@ -90,36 +90,44 @@ class taskLoopPlay(QThread):
 
             #Sim Mode
             if td == self.PLAYMODE_LOAD: #Load Data
-                sen = self.sourcemanager.getSensorbyName(AttachedSensorName.RPLidar2DVirtual)
-                lq = sen.getDataQueue()
-                self.guiApp.setStatus("Loading origin data")
-                print("store origin data")
-                tcnt = 0
-                prevtime = 0
-                fps = 0
-                fpscnt = 0
-                for data in iter(lq.get, 'interrupt'):
-                    self.originData.append(data)
-                    tcnt += 1
-                    if prevtime < int(data[2]):
-                        #print("frame per sec :",tcnt)
-                        fps += tcnt
-                        fpscnt += 1
-                        tcnt = 0
+                print("Start Sim Event")
+                loadedsimsens = self.sourcemanager.waitSimDataLoad()
+                #set data storage
+                for lss in loadedsimsens:
+                    print("Start Sim Load", lss)
+                    self.originData[lss] = list()
 
-                    prevtime = int(data[2])
-                    #print(data[2], data[3])
-                    #time.sleep(1 / self.vel)
+                    sen = self.sourcemanager.getSensorbyName(AttachedSensorName.RPLidar2DVirtual)
+                    lq = sen.getStoredDataset()
+                    self.guiApp.setStatus("Loading origin data")
+                    print("store origin data")
+                    tcnt = 0
+                    prevtime = 0
+                    fps = 0
+                    fpscnt = 0
+                    #for data in iter(lq.get, 'interrupt'):
+                    for data in lq:
+                        self.originData[lss].append(data)
+                        tcnt += 1
+                        if prevtime < int(data[2]):
+                            #print("frame per sec :",tcnt)
+                            fps += tcnt
+                            fpscnt += 1
+                            tcnt = 0
 
-                #calculate frame per sec
-                fps = 0 if fpscnt == 0 else int(round(fps / fpscnt))
+                        prevtime = int(data[2])
+                        #print(data[2], data[3])
+                        #time.sleep(1 / self.vel)
 
-                self.pbInfo.mode = self.PLAYMODE_LOAD
-                self.pbInfo.maxLength = len(self.originData)
-                self.pbInfo.setfps = fps
-                self.signal.emit(self.pbInfo)
-                self.guiApp.setStatus("Log data Load Completed")
-                self.simlog.enQueuePlayData(self.originData[self.playidx])
+                    #calculate frame per sec
+                    fps = 0 if fpscnt == 0 else int(round(fps / fpscnt))
+
+                    self.pbInfo.mode = self.PLAYMODE_LOAD
+                    self.pbInfo.maxLength = len(self.originData[lss])
+                    self.pbInfo.setfps = fps
+                    self.signal.emit(self.pbInfo)
+                    self.guiApp.setStatus("Log data Load Completed")
+                    self.simlog.enQueuePlayData(self.originData[lss][self.playidx])
 
             elif td == self.PLAYMODE_PLAY:
                 self.pbInfo.mode = self.PLAYMODE_PLAY
@@ -128,7 +136,7 @@ class taskLoopPlay(QThread):
                         break
                     self.pbInfo.currentIdx = self.playidx
                     #data.append(self.pbInfo)
-                    self.simlog.enQueuePlayData(self.originData[self.playidx])
+                    self.simlog.enQueuePlayData(self.originData[AttachedSensorName.RPLidar2DVirtual][self.playidx])
                     self.signal.emit(self.pbInfo)
                     time.sleep(1 / self.vel)
                     self.playidx += 1
@@ -136,7 +144,7 @@ class taskLoopPlay(QThread):
             elif td == self.PLAYMODE_SETVALUE:
                 self.pbInfo.mode = self.PLAYMODE_SETVALUE
                 self.pbInfo.currentIdx = self.playidx
-                self.simlog.enQueuePlayData(self.originData[self.playidx])
+                self.simlog.enQueuePlayData(self.originData[AttachedSensorName.RPLidar2DVirtual][self.playidx])
                 self.signal.emit(self.pbInfo)
                 # for idx, data in enumerate(self.originData):
                 #     self.pbInfo.currentIdx = idx

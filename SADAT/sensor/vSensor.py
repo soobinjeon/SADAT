@@ -10,4 +10,7 @@ class vSensor(Sensor):
         self._setSensorType(SensorType.VirtualSensor)
 
     def _doPostWork(self, inputdata):
-        self.addData(self.INTERRUPT_MSG)
+        pass
+
+    def _addSimData(self, inputdata):
+        self._addStoredData(inputdata)
