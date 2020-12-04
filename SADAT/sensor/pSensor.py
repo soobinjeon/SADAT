@@ -6,3 +6,6 @@ class pSensor(Sensor):
     def __init__(self, sensorcate=None, sensorname=None):
         super().__init__(sensorcate, sensorname)
         self._setSensorType(SensorType.ActualSensor)
+
+    def _doPostWork(self, inputdata):
+        pass

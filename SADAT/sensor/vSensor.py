@@ -8,3 +8,6 @@ class vSensor(Sensor):
     def __init__(self, sensorcate=None, sensorname=None):
         super().__init__(sensorcate, sensorname)
         self._setSensorType(SensorType.VirtualSensor)
+
+    def _doPostWork(self, inputdata):
+        self.addData(self.INTERRUPT_MSG)

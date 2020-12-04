@@ -3,16 +3,14 @@ from sensor.vSensor import vSensor
 
 
 class RPLidar2Dv(vSensor):
-    NAME = "RPLidar2D A3 Virtual"
-    def __init__(self):
-        super().__init__(SensorCategory.Lidar2D, self.NAME)
+    def __init__(self, name):
+        super().__init__(SensorCategory.RPLidar2D, name)
 
-    def doWorkDataInput(self, inputdata=None):
-        print("doWork RPLidar 2D v")
+    def _doWorkDataInput(self, inputdata=None):
         tempX = []
         tempY = []
         tempXY = []
-        cnt = 0
+        # cnt = 0
         # print(len(rawdata))
         for rdata in inputdata:
             tempXY = []
@@ -26,10 +24,9 @@ class RPLidar2Dv(vSensor):
             tempXY.append(rdata.start_flag[0])
             self.addData(tempXY)
             #self.Log.enQueueData(tempXY)
-            if cnt % 100 == 0:
-                print(cnt)
-            cnt += 1
+            # if cnt % 100 == 0:
+            #     print(cnt)
+            # cnt += 1
 
-        print("End Read Data")
-        self.addData(self.INTERRUPT_MSG)
-        #self.Log.enQueueData(self.getEOFMessage())
+        # print("End Read Data")
+        #self.addData(self.INTERRUPT_MSG)

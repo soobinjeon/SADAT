@@ -3,8 +3,11 @@ from sensor.vSensor import vSensor
 
 
 class Track(vSensor):
-    def __init__(self):
-        super().__init__(SensorCategory.Track, "Track")
+    def __init__(self, name):
+        super().__init__(SensorCategory.Track, name)
 
-    def doWorkDataInput(self, inputdata=None):
+    def _doWorkDataInput(self, inputdata=None):
         print("doWork Track")
+
+    def addSimData(self, data):
+        pass

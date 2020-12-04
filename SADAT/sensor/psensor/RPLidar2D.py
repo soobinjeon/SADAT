@@ -2,9 +2,9 @@ from sensor.SensorCategory import SensorCategory
 from sensor.pSensor import pSensor
 
 
-class RPLidar2D(pSensor):
-    def __init__(self):
-        super().__init__(SensorCategory.Lidar2D, 'RPLidar A3')
+class RPLidar2DA3(pSensor):
+    def __init__(self, name):
+        super().__init__(SensorCategory.RPLidar2D, name)
 
-    def doWorkDataInput(self, inputdata=None):
+    def _doWorkDataInput(self, inputdata):
         pass

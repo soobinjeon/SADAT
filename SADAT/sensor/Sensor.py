@@ -8,7 +8,6 @@ from sensor.SensorType import SensorType
 
 class Sensor(metaclass=ABCMeta):
     INTERRUPT_MSG = 'interrupt'
-
     def __init__(self, sensorcate=None, sensorname=None):
         self.sensorType = SensorType.NONE
         self.sensorCategory=sensorcate
@@ -16,8 +15,16 @@ class Sensor(metaclass=ABCMeta):
 
         self.data = None
 
+    def doWork(self, inputdata):
+        self._doWorkDataInput(inputdata)
+        self._doPostWork(inputdata)
+
     @abstractmethod
-    def doWorkDataInput(self, inputdata=None):
+    def _doPostWork(self, inputdata):
+        pass
+
+    @abstractmethod
+    def _doWorkDataInput(self, inputdata=None):
         pass
 
     def _setSensorType(self, stype):
