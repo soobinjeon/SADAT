@@ -17,7 +17,7 @@ class Sensor(metaclass=ABCMeta):
         self.storedData = None
 
     def doWork(self, inputdata):
-        #self.__cleanstoredData()
+        self.__cleanstoredData()
         self._doWorkDataInput(inputdata)
         self._doPostWork(inputdata)
 
@@ -31,7 +31,7 @@ class Sensor(metaclass=ABCMeta):
 
     def __cleanstoredData(self):
         if self.storedData is not None:
-            self.storedData = []
+            del self.storedData[:]
 
     def _setSensorType(self, stype):
         self.sensorType = stype

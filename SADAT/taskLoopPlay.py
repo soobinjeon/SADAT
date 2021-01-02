@@ -97,17 +97,20 @@ class taskLoopPlay(QThread):
                     print("Start Sim Load", lss)
                     self.originData[lss] = list()
 
-                    sen = self.sourcemanager.getSensorbyName(AttachedSensorName.RPLidar2DVirtual)
+                    sen = self.sourcemanager.getSensorbyName(lss)
                     lq = sen.getStoredDataset()
                     self.guiApp.setStatus("Loading origin data")
                     print("store origin data")
+
+                    #calcuate fps based on high resolution
+                    #센서들중 가장 fps가 높은 센서를 기준으로 fps 설
                     tcnt = 0
                     prevtime = 0
                     fps = 0
                     fpscnt = 0
                     #for data in iter(lq.get, 'interrupt'):
                     for data in lq:
-                        self.originData[lss].append(data)
+                        #self.originData[lss].append(data)
                         tcnt += 1
                         if prevtime < int(data[2]):
                             #print("frame per sec :",tcnt)
@@ -122,12 +125,15 @@ class taskLoopPlay(QThread):
                     #calculate frame per sec
                     fps = 0 if fpscnt == 0 else int(round(fps / fpscnt))
 
-                    self.pbInfo.mode = self.PLAYMODE_LOAD
-                    self.pbInfo.maxLength = len(self.originData[lss])
-                    self.pbInfo.setfps = fps
-                    self.signal.emit(self.pbInfo)
-                    self.guiApp.setStatus("Log data Load Completed")
-                    self.simlog.enQueuePlayData(self.originData[lss][self.playidx])
+                    #store data
+                    self.originData[lss] = lq
+
+                self.pbInfo.mode = self.PLAYMODE_LOAD
+                self.pbInfo.maxLength = len(self.originData[lss])
+                self.pbInfo.setfps = fps if self.pbInfo.setfps < fps else self.pbInfo.setfps
+                self.signal.emit(self.pbInfo)
+                self.guiApp.setStatus("Log data Load Completed")
+                self.simlog.enQueuePlayData(self.originData[lss][self.playidx])
 
             elif td == self.PLAYMODE_PLAY:
                 self.pbInfo.mode = self.PLAYMODE_PLAY
