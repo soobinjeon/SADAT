@@ -1,13 +1,13 @@
 import sys
 from multiprocessing import Manager, Process
-from PyQt5.QtWidgets import QApplication
 from LidarLog import LidarLog
 from ModeLog import ModeLog
 from ModeSimulation import ModeSimulation
 from SimLog import SimLog
 from gui.guiMain import GUI_CONTROLLER
+from sensor.SenAdptMgr import SenAdptMgr
+from sensor.SourceManager import SourceManager
 from simMode import Mode
-import time
 
 from taskLoopPlay import taskLoopPlay
 from taskPlanview import taskPlanview
@@ -19,6 +19,10 @@ class SnSimulator:
     def __init__(self, manager, gapp=None):
         self.guiApp = gapp
         self.manager = manager
+
+        #sensor devices
+        self.srcmanager = SourceManager(manager)
+        self.senadapter = SenAdptMgr(self.srcmanager, manager)
         self.rawlog = LidarLog(manager)
         self.simlog = SimLog(manager)
         self.procs = {}
@@ -29,6 +33,8 @@ class SnSimulator:
 
         self.plugins = None
 
+        #for test
+        self.srcmanager.printSensorList()
         self.loadPlugin()
         self.defineProcess()
 
@@ -89,14 +95,14 @@ class SnSimulator:
         self.pvthread.signal.connect(self.guiApp.changePosition)
         self.pvthread.start()
 
-        self.lpthread = taskLoopPlay(self.guiApp, self.simlog, self.manager)
+        self.lpthread = taskLoopPlay(self.guiApp, self.simlog, self.manager, self.srcmanager)
         self.lpthread.signal.connect(self.guiApp.playbackstatus)
         self.lpthread.setVelocity(60)
         self.lpthread.start()
 
         # init log process
         self.procs[Mode.MODE_LOG] = ModeLog(self.rawlog, self.simlog)
-        self.procs[Mode.MODE_SIM] = ModeSimulation(self.simlog)
+        self.procs[Mode.MODE_SIM] = ModeSimulation(self.srcmanager)
         print(self.procs)
 
     def addProcess(self, procdata):

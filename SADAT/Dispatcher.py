@@ -10,7 +10,9 @@ class Dispatcher(metaclass=ABCMeta):
         self.guiApp = guiApp
         self.value = None
         self.vel = None
+        self._rawdata = dict()
 
+    #what value???
     def setValue(self, value):
         self.value = value
 
